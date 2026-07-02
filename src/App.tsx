@@ -1,19 +1,17 @@
-import { Loader } from "@react-three/drei";
-import { Canvas } from "@react-three/fiber";
-import { Leva } from "leva";
-import { Experience } from "./components/Experience";
-import { UI } from "./components/UI";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AvatarApp } from "./pages/AvatarApp";
+import { AdminDashboard } from "./pages/AdminDashboard";
+import { SandboxChat } from "./pages/SandboxChat";
 
 function App() {
   return (
-    <>
-      <Loader />
-      <Leva hidden />
-      <UI />
-      <Canvas shadows camera={{ position: [0, 0, 1], fov: 30 }}>
-        <Experience />
-      </Canvas>
-    </>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<AvatarApp />} />
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/sandbox" element={<SandboxChat />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 

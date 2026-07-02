@@ -1,7 +1,9 @@
-import { CameraControls, ContactShadows, Environment, Text } from "@react-three/drei";
+import { CameraControls, ContactShadows, Environment, Text, Billboard } from "@react-three/drei";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useChat } from "../hooks/useChat";
+import { useAvatarConfig } from "../hooks/useAvatarConfig";
 import { Avatar } from "./Avatar";
+import { VRMAvatar } from "./VRMAvatar";
 
 const Dots = (props: { "position-y"?: number; "position-x"?: number }) => {
   const { loading } = useChat();
@@ -21,18 +23,20 @@ const Dots = (props: { "position-y"?: number; "position-x"?: number }) => {
   if (!loading) return null;
 
   return (
-    <group {...props}>
+    <Billboard {...props}>
       <Text fontSize={0.14} anchorX="left" anchorY="bottom">
         {loadingText}
         <meshBasicMaterial attach="material" color="black" />
       </Text>
-    </group>
+    </Billboard>
   );
 };
+
 
 export const Experience = () => {
   const cameraControls = useRef<CameraControls>(null!);
   const { cameraZoomed } = useChat();
+  const { config } = useAvatarConfig();
 
   useEffect(() => {
     cameraControls.current.setLookAt(0, 2, 5, 0, 1.5, 0);
@@ -46,6 +50,8 @@ export const Experience = () => {
     }
   }, [cameraZoomed]);
 
+  const isVrm = config.glbUrl.toLowerCase().endsWith('.vrm');
+
   return (
     <>
       <CameraControls ref={cameraControls} />
@@ -53,7 +59,11 @@ export const Experience = () => {
       <Suspense>
         <Dots position-y={1.75} position-x={-0.02} />
       </Suspense>
-      <Avatar />
+      {isVrm ? (
+        <VRMAvatar key={config.glbUrl} />
+      ) : (
+        <Avatar key={config.glbUrl} />
+      )}
       <ContactShadows opacity={0.7} />
     </>
   );

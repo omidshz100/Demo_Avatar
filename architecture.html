@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GreenTech Avatar — Architecture</title>
+  <style>
+    body {
+      margin: 0;
+      background: #0f1117;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      padding: 2rem;
+    }
+    svg {
+      max-width: 680px;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+<svg viewBox="0 0 680 860" xmlns="http://www.w3.org/2000/svg">
+
+  <!-- ── DEFS ── -->
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#4a5568"/>
+    </marker>
+  </defs>
+
+  <!-- ════════════════ TITLE ════════════════ -->
+  <text x="340" y="28" text-anchor="middle"
+        font-family="Segoe UI, sans-serif" font-size="11"
+        font-weight="700" fill="#4ade80" letter-spacing="2">
+    SYSTEM ARCHITECTURE — GREENTECH AVATAR
+  </text>
+
+  <!-- ════════════════ NODE: Browser UI ════════════════ -->
+  <rect x="225" y="44" width="230" height="52" rx="8"
+        fill="#1a1d27" stroke="#4ade80" stroke-width="1.5"/>
+  <text x="340" y="67" text-anchor="middle"
+        font-family="Segoe UI, sans-serif" font-size="13"
+        font-weight="700" fill="#4ade80">Browser UI</text>
+  <text x="340" y="85" text-anchor="middle"
+        font-family="Segoe UI, sans-serif" font-size="10"
+        fill="#64748b">React · Three.js Canvas · Vite</text>
+
+  <!-- arrow down -->
+  <line x1="340" y1="96" x2="340" y2="138"
+        stroke="#4a5568" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="350" y="122" font-family="Segoe UI, sans-serif"
+        font-size="10" fill="#475569">HTTP POST</text>
+
+  <!-- ════════════════ NODE: FastAPI Backend ════════════════ -->
+  <rect x="200" y="140" width="280" height="52" rx="8"
+        fill="#1a1d27" stroke="#60a5fa" stroke-width="1.5"/>
+  <text x="340" y="163" text-anchor="middle"
+        font-family="Segoe UI, sans-serif" font-size="13"
+        font-weight="700" fill="#60a5fa">FastAPI Backend</text>
+  <text x="340" y="181" text-anchor="middle"
+        font-family="Segoe UI, sans-serif" font-size="10"
+        fill="#64748b">Python · Async Request Handler</text>
+
+  <!-- fork down from FastAPI -->
+  <line x1="340" y1="192" x2="340" y2="218"
+        stroke="#4a5568" stroke-width="1.5"/>
+  <!-- horizontal bar -->
+  <line x1="155" y1="218" x2="525" y2="218"
+        stroke="#4a5568" stroke-width="1.5"/>
+  <!-- down to ChromaDB -->
+  <line x1="155" y1="218" x2="155" y2="244"
+        stroke="#4a5568" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <!-- down to Ollama -->
+  <line x1="525" y1="218" x2="525" y2="244"
+        stroke="#4a5568" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ════════════════ NODE: ChromaDB ════════════════ -->
+  <rect x="40" y="246" width="230" height="64" rx="8"
+        fill="#1a1d27" stroke="#a78bfa" stroke-width="1.5"/>
+  <text x="155" y="270" text-anchor="middle"
+        font-family="Segoe UI, sans-serif" font-size="13"
+        font-weight="700" fill="#a78bfa">ChromaDB</text>
+  <text x="155" y="287" text-anchor="middle"
+        font-family="Segoe UI, sans-serif" font-size="10"
+        fill="#64748b">RAG · Vector Search</text>
+  <text x="155" y="301" text-anchor="middle"
+        font-family="Segoe UI, sans-serif" font-size="10"
+        fill="#64748b">nomic-embed-text · Top-5 Chunks</text>
+
+  <!-- ════════════════ NODE: Ollama LLM ════════════════ -->
+  <rect x="410" y="246" width="230" height="64" rx="8"
+        fill="#1a1d27" stroke="#fb923c" stroke-width="1.5"/>
+  <text x="525" y="270" text-anchor="middle"
+        font-family="Segoe UI, sans-serif" font-size="13"
+        font-weight="700" fill="#fb923c">Ollama LLM</text>
+  <text x="525" y="287" text-anchor="middle"
+        font-family="Segoe UI, sans-serif" font-size="10"
+        fill="#64748b">phi3:3.8b / llama3.2:3b</text>
+  <text x="525" y="301" text-anchor="middle"
+        font-family="Segoe UI, sans-serif" font-size="10"
+        fill="#64748b">JSON Response Generation</text>
+
+  <!-- merge from ChromaDB + Ollama -->
+  <line x1="155" y1="310" x2="155" y2="340"
+        stroke="#4a5568" stroke-width="1.5"/>
+  <line x1="525" y1="310" x2="525" y2="340"
+        stroke="#4a5568" stroke-width="1.5"/>
+  <line x1="155" y1="340" x2="525" y2="340"
+        stroke="#4a5568" stroke-width="1.5"/>
+
+  <!-- second fork from merge -->
+  <line x1="340" y1="340" x2="340" y2="366"
+        stroke="#4a5568" stroke-width="1.5"/>
+  <line x1="155" y1="366" x2="525" y2="366"
+        stroke="#4a5568" stroke-width="1.5"/>
+  <line x1="155" y1="366" x2="155" y2="392"
+        stroke="#4a5568" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="525" y1="366" x2="525" y2="392"
+        stroke="#4a5568" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ════════════════ NODE: Edge TTS ════════════════ -->
+  <rect x="40" y="394" width="230" height="64" rx="8"
+        fill="#1a1d27" stroke="#2dd4bf" stroke-width="1.5"/>
+  <text x="155" y="418" text-anchor="middle"
+        font-family="Segoe UI, sans-serif" font-size="13"
+        font-weight="700" fill="#2dd4bf">Edge TTS</text>
+  <text x="155" y="435" text-anchor="middle"
+        font-family="Segoe UI, sans-serif" font-size="10"
+        fill="#64748b">Neural Speech Audio</text>
+  <text x="155" y="449" text-anchor="middle"
+        font-family="Segoe UI, sans-serif" font-size="10"
+        fill="#64748b">Microsoft · No API Key Required</text>
+
+  <!-- ════════════════ NODE: Rhubarb ════════════════ -->
+  <rect x="410" y="394" width="230" height="64" rx="8"
+        fill="#1a1d27" stroke="#4ade80" stroke-width="1.5"/>
+  <text x="525" y="418" text-anchor="middle"
+        font-family="Segoe UI, sans-serif" font-size="13"
+        font-weight="700" fill="#4ade80">Rhubarb Lip Sync</text>
+  <text x="525" y="435" text-anchor="middle"
+        font-family="Segoe UI, sans-serif" font-size="10"
+        fill="#64748b">Phoneme Analysis</text>
+  <text x="525" y="449" text-anchor="middle"
+        font-family="Segoe UI, sans-serif" font-size="10"
+        fill="#64748b">Per-Frame Mouth Cues (Visemes)</text>
+
+  <!-- merge from TTS + Rhubarb -->
+  <line x1="155" y1="458" x2="155" y2="490"
+        stroke="#4a5568" stroke-width="1.5"/>
+  <line x1="525" y1="458" x2="525" y2="490"
+        stroke="#4a5568" stroke-width="1.5"/>
+  <line x1="155" y1="490" x2="525" y2="490"
+        stroke="#4a5568" stroke-width="1.5"/>
+  <line x1="340" y1="490" x2="340" y2="516"
+        stroke="#4a5568" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ════════════════ JSON OUTPUT BOX ════════════════ -->
+  <rect x="140" y="518" width="400" height="66" rx="8"
+        fill="#12151e" stroke="#2a2d3a" stroke-width="1.5"/>
+  <text x="340" y="540" text-anchor="middle"
+        font-family="Courier New, monospace" font-size="12"
+        fill="#a3e635">JSON  {</text>
+  <text x="340" y="558" text-anchor="middle"
+        font-family="Courier New, monospace" font-size="12"
+        fill="#a3e635">  text,  facialExpression,  animation,  audio</text>
+  <text x="340" y="575" text-anchor="middle"
+        font-family="Courier New, monospace" font-size="12"
+        fill="#a3e635">}</text>
+
+  <!-- arrow down to React -->
+  <line x1="340" y1="584" x2="340" y2="626"
+        stroke="#4a5568" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ════════════════ NODE: React Components ════════════════ -->
+  <rect x="200" y="628" width="280" height="52" rx="8"
+        fill="#1a1d27" stroke="#60a5fa" stroke-width="1.5"/>
+  <text x="340" y="651" text-anchor="middle"
+        font-family="Segoe UI, sans-serif" font-size="13"
+        font-weight="700" fill="#60a5fa">React Components</text>
+  <text x="340" y="669" text-anchor="middle"
+        font-family="Segoe UI, sans-serif" font-size="10"
+        fill="#64748b">State · Queue · Playback Control</text>
+
+  <!-- down then left to Avatar -->
+  <line x1="340" y1="680" x2="340" y2="716"
+        stroke="#4a5568" stroke-width="1.5"/>
+  <line x1="155" y1="716" x2="340" y2="716"
+        stroke="#4a5568" stroke-width="1.5"/>
+  <line x1="155" y1="716" x2="155" y2="744"
+        stroke="#4a5568" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="248" y="710" text-anchor="middle"
+        font-family="Segoe UI, sans-serif" font-size="10"
+        fill="#475569">Three.js</text>
+
+  <!-- ════════════════ NODE: 3D Avatar Renderer ════════════════ -->
+  <rect x="40" y="746" width="230" height="64" rx="8"
+        fill="#1a1d27" stroke="#facc15" stroke-width="1.5"/>
+  <text x="155" y="770" text-anchor="middle"
+        font-family="Segoe UI, sans-serif" font-size="13"
+        font-weight="700" fill="#facc15">3D Avatar Renderer</text>
+  <text x="155" y="787" text-anchor="middle"
+        font-family="Segoe UI, sans-serif" font-size="10"
+        fill="#64748b">WebGL · Morph Targets</text>
+  <text x="155" y="801" text-anchor="middle"
+        font-family="Segoe UI, sans-serif" font-size="10"
+        fill="#64748b">9 Animations · 27+ Blend Shapes</text>
+
+</svg>
+
+</body>
+</html>

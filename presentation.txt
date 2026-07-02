@@ -1,0 +1,417 @@
+================================================================================
+  GREENTECH AVATAR — PRESENTATION SLIDE DECK
+  Audience: Hackathon Jury / Professor
+  Duration: 10 minutes | 13 Slides
+  Language: English
+================================================================================
+
+
+────────────────────────────────────────────────────────────────────────────────
+SLIDE 01 — TITLE SLIDE
+────────────────────────────────────────────────────────────────────────────────
+
+Title:    GreenTech Avatar
+Subtitle: Your AI-Powered 3D Virtual Assistant — Fully Local, Always Available
+
+Bullets:
+  • Real-time conversational AI with a 3D animated avatar
+  • Runs entirely on local infrastructure — zero cloud dependency
+  • Built for businesses, researchers, and public-facing representatives
+
+Visual:
+  Full-screen render of the 3D avatar on a clean background.
+  Green-screen mode screenshot recommended. Project name as overlay.
+
+Speaker Notes:
+  Good morning / afternoon. What you're seeing is GreenTech Avatar —
+  a self-hosted AI virtual assistant that looks, speaks, and responds
+  like a real person. In the next 10 minutes I'll show you how it works,
+  what makes it different, and why that matters.
+
+
+────────────────────────────────────────────────────────────────────────────────
+SLIDE 02 — THE PROBLEM
+────────────────────────────────────────────────────────────────────────────────
+
+Title: The Problem: Static Knowledge Delivery is Broken
+
+Bullets:
+  • Websites, CVs, and FAQs are passive — users must search, read,
+    and interpret on their own
+  • Human support agents are expensive and unavailable 24/7
+  • Cloud AI chatbots raise serious data privacy concerns
+    (GDPR, sensitive documents)
+  • Existing avatar solutions are shallow, scripted, and non-customizable
+  • First impressions matter — text alone does not engage
+
+Visual:
+  Split screen — left: a dull FAQ/text page.
+  Right: the avatar speaking with facial expressions.
+
+Speaker Notes:
+  Think about the last time you visited a company's "About" page or
+  read a long FAQ. You probably skimmed it, missed important details,
+  or gave up. Meanwhile, businesses pay for support agents who can't
+  work around the clock — and cloud AI options mean sending sensitive
+  business data to third parties.
+
+
+────────────────────────────────────────────────────────────────────────────────
+SLIDE 03 — OUR SOLUTION
+────────────────────────────────────────────────────────────────────────────────
+
+Title: GreenTech Avatar: Conversational AI That Feels Human
+
+Bullets:
+  • Ask any question — the avatar answers from your custom knowledge base
+  • Speaks with synchronized lip movements, facial expressions,
+    and body animations
+  • Dual input: type or talk via Web Speech API voice recognition
+  • Self-hosted — your data never leaves your machine
+  • Fully customizable: model, voice, personality, and appearance
+
+Visual:
+  Screenshot sequence: user types → avatar responds with expressions
+  → audio plays with lip-sync.
+
+Speaker Notes:
+  GreenTech Avatar transforms your documents — a CV, a product manual,
+  a knowledge base — into a living, breathing assistant. The avatar
+  listens, thinks, and responds with emotion and movement, making
+  interactions memorable and efficient.
+
+
+────────────────────────────────────────────────────────────────────────────────
+SLIDE 04 — LIVE DEMO PREVIEW
+────────────────────────────────────────────────────────────────────────────────
+
+Title: See It in Action
+
+Bullets:
+  • User asks: "Tell me about your experience in machine learning"
+  • Avatar searches the knowledge base → generates a context-aware answer
+  • Response delivered with matching body animation
+    (e.g. confident talking pose)
+  • Facial expression adapts — smile, neutral, surprised — based on tone
+  • End-to-end latency under 3 seconds on standard consumer hardware
+
+Visual:
+  Screenshot or short video of a live demo interaction.
+  Highlight the mouth moving in sync with audio.
+
+Speaker Notes:
+  Let me walk you through what the user actually experiences. They ask
+  a question — by voice or by typing. Within 3 seconds, the avatar
+  responds with a natural voice, animated lips that match every phoneme,
+  and body language that fits the emotional tone of the answer.
+
+
+────────────────────────────────────────────────────────────────────────────────
+SLIDE 05 — SYSTEM ARCHITECTURE
+────────────────────────────────────────────────────────────────────────────────
+
+Title: Architecture: Two Components, One Seamless Experience
+
+Diagram:
+
+  [Browser UI]  ──── HTTP POST ────►  [FastAPI Backend]
+                                               │
+                                  ┌────────────┴────────────┐
+                             [ChromaDB]               [Ollama LLM]
+                             RAG Retrieval             Response Gen.
+                                  └────────────┬────────────┘
+                                               │
+                                  ┌────────────┴────────────┐
+                             [Edge TTS]              [Rhubarb]
+                             Speech Audio            Lip-Sync Cues
+                                  └────────────┬────────────┘
+                                               │
+                                  JSON { text, expression,
+                                         animation, audio }
+                                               │
+  [3D Avatar Renderer]  ◄──── Three.js ◄──── React Components
+
+Bullets:
+  • Frontend: React 18 + Three.js WebGL canvas, served via Vite
+  • Backend: Python FastAPI handling AI, audio, and lip-sync in one call
+  • Communication: single REST endpoint — text in, structured JSON out
+  • All computation is local — no external API calls at runtime
+  • Modular design — each layer is independently replaceable
+
+Speaker Notes:
+  The system has two layers. The browser renders the 3D avatar using
+  WebGL and React Three Fiber. The Python backend handles all the
+  intelligence — retrieving context, generating the response, converting
+  it to speech, and computing lip-sync timings. The two communicate via
+  a single REST endpoint.
+
+
+────────────────────────────────────────────────────────────────────────────────
+SLIDE 06 — AI PIPELINE
+────────────────────────────────────────────────────────────────────────────────
+
+Title: Under the Hood: RAG + LLM + TTS + Lip-Sync
+
+Pipeline Flow:
+
+  User Query → Embed → ChromaDB Search → Top-5 Chunks → LLM Prompt
+  → JSON Response → Edge TTS → Rhubarb Phonemes → Frontend Render
+
+Bullets:
+  • RAG: query embedded and matched against ChromaDB — retrieves
+    the 5 most relevant document chunks
+  • LLM: local Ollama model generates structured JSON:
+    { text, facialExpression, animation }
+  • TTS: Microsoft Edge TTS converts text to neural speech —
+    no API key required
+  • Lip-Sync: Rhubarb performs phonetic analysis → per-frame
+    mouth cue timings (visemes)
+  • Result: perfectly synchronized audio + visuals from a single
+    backend call
+
+Speaker Notes:
+  A user's question gets embedded into a vector, matched against your
+  documents in ChromaDB, and the top 5 most relevant passages are
+  injected into the LLM's prompt. The model returns not just the text
+  answer, but which facial expression and animation to use. Then Edge
+  TTS speaks it, and Rhubarb maps every phoneme to a mouth shape.
+
+
+────────────────────────────────────────────────────────────────────────────────
+SLIDE 07 — 3D AVATAR & ANIMATION ENGINE
+────────────────────────────────────────────────────────────────────────────────
+
+Title: The Avatar: Lifelike Movement and Expression
+
+Bullets:
+  • 9 animation states: Idle, Talking (×3 variants), Laughing,
+    Angry, Crying, Rumba, Terrified
+  • 7 facial expression presets mapped across 27+ morph targets
+    (Default, Smile, FunnyFace, Sad, Surprised, Angry, Crazy)
+  • Smooth 0.5-second cross-fade transitions between animation states
+  • Frame-accurate lip-sync: viseme morph targets (viseme_AA,
+    viseme_PP, etc.) timed to audio playback
+  • Randomized eye blinking at 1–5 second intervals plus wink support
+
+Visual:
+  Grid of avatar screenshots showing different expressions and poses.
+  Or a labeled diagram of morph targets on the face.
+
+Speaker Notes:
+  The avatar isn't just a talking head. It cycles through three talking
+  animations to avoid looking robotic, smoothly transitions between
+  states, and its face uses 27 blend shapes to form expressions. The
+  lip movements are phoneme-accurate — every syllable maps to the
+  correct mouth shape, synchronized frame by frame with the audio.
+
+
+────────────────────────────────────────────────────────────────────────────────
+SLIDE 08 — KEY FEATURES OVERVIEW
+────────────────────────────────────────────────────────────────────────────────
+
+Title: Key Features at a Glance
+
+Bullets:
+  • Voice input via Web Speech API — speak directly to the avatar
+  • Green-screen mode for streaming, recording, or virtual backgrounds
+  • Customization panel: upload your own 3D model, adjust position,
+    scale, and background presets
+  • Debug panel (Leva) for real-time parameter tuning without restarting
+  • Response queue — multiple messages handled sequentially,
+    no dropped replies
+
+Visual:
+  Side-by-side UI screenshots: the chat panel, the customization
+  panel, and the green-screen mode.
+
+Speaker Notes:
+  Beyond the core AI, the system includes practical features. You can
+  speak to it, use it on a green screen for broadcast, upload a
+  completely different 3D character, and tune all parameters live.
+  The response queue means even if you send multiple questions quickly,
+  every answer is delivered in order.
+
+
+────────────────────────────────────────────────────────────────────────────────
+SLIDE 09 — PRIVACY & DEPLOYMENT ADVANTAGES
+────────────────────────────────────────────────────────────────────────────────
+
+Title: Why Local Matters: Privacy, Cost, Control
+
+Comparison Table:
+
+  Feature               | GreenTech Avatar          | Cloud AI Chatbot
+  ----------------------|---------------------------|--------------------
+  Data privacy          | Local only — never leaves | Sent to cloud
+  Runtime cost          | Zero after setup          | Per-query fees
+  Customization         | Full (model, voice, docs) | Limited by provider
+  Internet required     | No (air-gap capable)      | Always
+  GDPR compliant        | Yes — by design           | Depends on vendor
+
+Bullets:
+  • Zero data leaves the machine — 100% GDPR-compliant by design
+  • No API keys, no subscriptions, no per-query costs after setup
+  • Works air-gapped — no internet required at runtime
+  • Single-command startup: uvicorn main:app + npm run dev
+  • Deployable on a standard laptop, workstation, or on-premise server
+
+Speaker Notes:
+  Every alternative either sends your data to a cloud provider or costs
+  money per interaction. GreenTech Avatar runs entirely on your hardware.
+  Once deployed, it costs nothing to operate — and sensitive documents
+  like client data or internal manuals stay on-premise.
+
+
+────────────────────────────────────────────────────────────────────────────────
+SLIDE 10 — USE CASES
+────────────────────────────────────────────────────────────────────────────────
+
+Title: Who Is This For?
+
+Bullets:
+  • Personal Branding: an interactive digital resume that answers
+    recruiter questions about your skills and experience — 24/7
+  • Customer Service: a product assistant trained on manuals and FAQs
+    — handles common questions without human intervention
+  • Healthcare / Legal: a compliant information kiosk using private,
+    sensitive documents with no cloud exposure
+  • Education: an AI tutor avatar trained on course materials —
+    students ask questions, the avatar explains
+  • Events & Exhibitions: a compelling interactive booth representative
+    that never tires and never misquotes
+  • Enterprise Internal: HR onboarding assistant, IT helpdesk,
+    or internal knowledge portal — all on-premise
+
+Visual:
+  Icon grid — one icon + one-liner per use case.
+
+Speaker Notes:
+  The versatility comes from the RAG system — you swap out the knowledge
+  base documents and the avatar becomes a different expert. A job seeker
+  loads their CV. A hospital loads clinical guidelines. A retailer loads
+  product specs. Same system, infinite personas.
+
+
+────────────────────────────────────────────────────────────────────────────────
+SLIDE 11 — TECH STACK SUMMARY
+────────────────────────────────────────────────────────────────────────────────
+
+Title: Built With Modern, Open-Source, No-Lock-In Tools
+
+Bullets:
+  • Frontend:    React 18 · TypeScript 5 · Three.js · React Three Fiber
+                 React Three Drei · Tailwind CSS · Vite
+  • 3D / XR:    WebGL · glTF Models · Morph Targets · Skeletal Animation
+                 React Three XR (WebXR-ready)
+  • Backend AI: Python FastAPI · LangChain · ChromaDB · Ollama
+                 phi3:3.8b / llama3.2:3b · nomic-embed-text (embeddings)
+  • Audio:      Microsoft Edge TTS · FFmpeg · Rhubarb Lip Sync
+                 Web Speech API
+
+Visual:
+  Logo grid of all technologies. Or a layered stack diagram:
+  Frontend / 3D Engine / Backend / AI Models / Audio.
+
+Speaker Notes:
+  Every tool here is open-source or freely available. We deliberately
+  chose a stack with no vendor lock-in — you can swap Ollama for any
+  compatible LLM, replace Edge-TTS with another voice engine, or update
+  the 3D model independently. The architecture is modular by design.
+
+
+────────────────────────────────────────────────────────────────────────────────
+SLIDE 12 — RESULTS & ROADMAP
+────────────────────────────────────────────────────────────────────────────────
+
+Title: What We've Achieved & Where We're Going
+
+COMPLETED:
+  ✓ End-to-end working demo
+  ✓ RAG + local LLM pipeline
+  ✓ Frame-accurate lip-sync
+  ✓ 9 animations, 7 facial expressions, 27+ morph targets
+  ✓ Voice input via Web Speech API
+  ✓ Green-screen mode
+  ✓ Avatar customization panel
+  ✓ Response queue system
+  ✓ Under 3 seconds latency on standard hardware
+
+NEXT STEPS:
+  → Streaming responses to reduce perceived latency
+  → Multi-language TTS voices
+  → Mobile-optimized UI
+  → WebXR / VR headset deployment (foundation already in code)
+  → Multi-document knowledge management UI
+  → Docker container for one-click deploy
+
+Visual:
+  Two-column roadmap: Done (green) vs. Upcoming (blue).
+
+Speaker Notes:
+  We have a working, production-deployable system today. The next phase
+  focuses on streaming responses to cut perceived latency further,
+  adding multilingual TTS voices, and leveraging the WebXR foundation
+  already in the code to deploy the avatar in VR headsets.
+
+
+────────────────────────────────────────────────────────────────────────────────
+SLIDE 13 — Q&A / CALL TO ACTION
+────────────────────────────────────────────────────────────────────────────────
+
+Title: Try It. Customize It. Deploy It.
+
+Bullets:
+  • Self-contained setup — runs on any machine with Python and Node.js
+  • Open for collaboration, integration, and enterprise deployment
+  • Demo available live — ask the avatar anything, right now
+
+Contact:
+  Omid Shojaeian Zanjani
+  omidfreelance100@gmail.com
+
+Visual:
+  Avatar displayed prominently. QR code linking to repo or live demo.
+
+Speaker Notes:
+  That's GreenTech Avatar — a complete, privacy-first, AI-powered 3D
+  assistant you can run right now on your own hardware. I'd love to
+  show you the live demo or answer any questions about the architecture,
+  the AI pipeline, or the customization possibilities. Thank you.
+
+
+================================================================================
+  TIMING GUIDE (10-MINUTE VERSION)
+================================================================================
+
+  Section                          Slides    Time
+  ─────────────────────────────────────────────────
+  Hook + Problem                   01–02     1.5 min
+  Solution + Demo                  03–04     2.0 min
+  Technical Deep Dive              05–07     3.0 min
+  Features + Privacy               08–09     1.5 min
+  Use Cases + Stack + Roadmap      10–12     1.5 min
+  Q&A                              13        0.5 min
+  ─────────────────────────────────────────────────
+  Total                                      10 min
+
+
+================================================================================
+  RECOMMENDED VISUALS TO PREPARE
+================================================================================
+
+  Slide 01  Avatar render — full-screen screenshot from the app
+  Slide 02  Static FAQ page vs. avatar speaking — split screen
+  Slide 05  System architecture flowchart (draw.io / Excalidraw)
+  Slide 06  AI pipeline diagram (RAG → LLM → TTS → Rhubarb)
+  Slide 07  Avatar expression grid — screenshots of each expression
+  Slide 08  UI screenshots — chat panel, customization panel, green-screen
+  Slide 09  Comparison table (already in slide)
+  Slide 10  Use case icon grid
+  Slide 11  Tech logo grid
+  Slide 12  Two-column roadmap: Done vs. Next Steps
+  Slide 13  Avatar + QR code
+
+
+================================================================================
+  END OF PRESENTATION
+================================================================================

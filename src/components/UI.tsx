@@ -1,17 +1,56 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import { useChat } from "../hooks/useChat";
+import { CustomizationPanel } from "./CustomizationPanel";
+import { Captions } from "./Captions";
+import { useAvatarConfig } from "../hooks/useAvatarConfig";
 
 interface UIProps {
   hidden?: boolean;
 }
 
+const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
 export const UI = ({ hidden }: UIProps) => {
   const input = useRef<HTMLInputElement>(null);
   const { chat, loading, cameraZoomed, setCameraZoomed, message } = useChat();
+  const { setConfig } = useAvatarConfig();
   const [voiceMode, setVoiceMode] = useState(false);
   const [listening, setListening] = useState(false);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const voiceModeRef = useRef(false); // track voiceMode inside callbacks
+
+  // Fetch dynamic company info
+  const [companyName, setCompanyName] = useState("GreenTech");
+  const [companySubtitle, setCompanySubtitle] = useState("AI Avatar 🤖 V 1.0.1");
+  const [headerBackground, setHeaderBackground] = useState("rgba(255, 255, 255, 0.5)");
+  const [captionsEnabled, setCaptionsEnabled] = useState(true);
+  const [captionsPosition, setCaptionsPosition] = useState("top-left");
+  const [captionsTextColor, setCaptionsTextColor] = useState("#e5e7eb");
+  const [captionsActiveColor, setCaptionsActiveColor] = useState("#4ade80");
+  const [captionsBgColor, setCaptionsBgColor] = useState("rgba(0,0,0,0.6)");
+
+  useEffect(() => {
+    fetch(`${backendUrl}/api/admin/settings`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.company_name) setCompanyName(data.company_name);
+        if (data.company_subtitle) setCompanySubtitle(data.company_subtitle);
+        if (data.background_css) {
+          setHeaderBackground(data.background_css);
+          // Remove any globally applied background from the previous mistake
+          document.body.style.background = "";
+        }
+        if (data.captions_enabled !== undefined) setCaptionsEnabled(data.captions_enabled);
+        if (data.captions_position) setCaptionsPosition(data.captions_position);
+        if (data.captions_text_color) setCaptionsTextColor(data.captions_text_color);
+        if (data.captions_active_color) setCaptionsActiveColor(data.captions_active_color);
+        if (data.captions_bg_color) setCaptionsBgColor(data.captions_bg_color);
+        if (data.avatar_glb_url) setConfig({ glbUrl: data.avatar_glb_url });
+      })
+      .catch(err => console.error("Failed to load settings", err));
+  }, [setConfig]);
+
+  const hasMedia = message?.youtube_urls?.length || message?.images?.length ? true : false;
 
   const startListening = useCallback(() => {
     const rec = recognitionRef.current;
@@ -72,11 +111,24 @@ export const UI = ({ hidden }: UIProps) => {
   if (hidden) return null;
 
   return (
+    <>
+    <CustomizationPanel />
+    <Captions 
+      enabled={captionsEnabled} 
+      position={captionsPosition} 
+      hasMedia={hasMedia} 
+      textColor={captionsTextColor}
+      activeColor={captionsActiveColor}
+      bgColor={captionsBgColor}
+    />
     <div className="fixed top-0 left-0 right-0 bottom-0 z-10 flex justify-between p-4 flex-col pointer-events-none">
       {/* Header */}
-      <div className="self-start backdrop-blur-md bg-white bg-opacity-50 p-4 rounded-lg">
-        <h1 className="font-black text-xl">GreenTech</h1>
-        <p>AI Avatar 🤖 V 1.0.1</p>
+      <div 
+        className="self-start backdrop-blur-md p-4 rounded-lg pointer-events-auto"
+        style={{ background: headerBackground }}
+      >
+        <h1 className="font-black text-xl">{companyName}</h1>
+        <p>{companySubtitle}</p>
       </div>
 
       {/* Right buttons */}
@@ -168,5 +220,6 @@ export const UI = ({ hidden }: UIProps) => {
         )}
       </div>
     </div>
+    </>
   );
 };

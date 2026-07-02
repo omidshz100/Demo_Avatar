@@ -1,0 +1,455 @@
+================================================================================
+                     GREENTECH AVATAR — PROJECT REPORT
+                     Prepared: 2026-05-19
+                     Author: Omid Shojaeian Zanjani
+================================================================================
+
+
+OVERVIEW
+--------
+GreenTech Avatar is an interactive 3D virtual avatar platform that acts as an
+AI-powered professional representative. The system presents a realistic 3D
+avatar that can speak, animate facial expressions, and answer questions about
+the user's professional background in real time. It combines a modern React/
+Three.js frontend with a Python FastAPI backend powered by local LLM inference,
+Retrieval-Augmented Generation (RAG), text-to-speech synthesis, and automated
+lip-sync animation.
+
+The project consists of two main components:
+  1. Demo_Avatar           — React/TypeScript/Three.js frontend
+  2. Demo_Avatar_backend_fastapi — Python/FastAPI backend with AI pipeline
+
+
+================================================================================
+PART 1: FRONTEND — Demo_Avatar
+================================================================================
+
+LOCATION
+--------
+/Users/omidshojaeianzanjani/Documents/GreenTech/Avatar/newDeployment/Demo_Avatar
+
+PURPOSE
+-------
+Renders an interactive 3D avatar in the browser. The avatar speaks, animates,
+and lip-syncs in response to chat or voice messages sent by the user. The UI
+supports text input, voice recognition, camera controls, avatar customization,
+and a green-screen mode for streaming/recording.
+
+
+TECH STACK
+----------
+- React 18.2           — UI framework
+- TypeScript 5.0       — Type-safe language
+- Three.js 0.153       — 3D graphics engine
+- React Three Fiber 8  — React renderer for Three.js
+- React Three Drei 9   — Three.js utility components
+- React Three XR 5     — WebXR/immersive experience support
+- Tailwind CSS 3.3     — Utility-first CSS framework
+- Leva 0.9             — Debug/tweakable parameters panel
+- Vite 4.1             — Build tool and dev server
+
+
+PROJECT STRUCTURE
+-----------------
+src/
+  main.tsx                  Entry point — React root with provider setup
+  App.tsx                   Main app: Canvas, Loader, scene composition
+  index.css                 Global styles (Tailwind + custom CSS)
+  components/
+    Avatar.tsx              Core 3D avatar: animation, expressions, lip-sync
+    Experience.tsx          3D scene: camera, lighting, environment, shadows
+    UI.tsx                  Chat interface, voice input, camera & UI controls
+    CustomizationPanel.tsx  Settings panel for avatar appearance customization
+  hooks/
+    useChat.tsx             Chat state management and backend API integration
+    useAvatarConfig.tsx     Avatar configuration state (model, position, scale)
+
+public/
+  models/
+    64f1a714fe61576b46f27ca2.glb  Default ReadyPlayerMe avatar model
+    animations.glb                 Bundled animation set
+    rpm.fbx                        FBX source avatar model
+  animations/
+    Idle, Laughing, Rumba, Crying, Angry, Terrified (FBX)
+    Talking_0, Talking_1, Talking_2 (FBX)
+
+
+KEY COMPONENTS
+--------------
+
+Avatar.tsx
+  The core 3D avatar rendering engine. Handles:
+  - GLTF/GLB model loading with runtime switching support
+  - Animation system: idle loop, talking cycling (Talking_0/1/2 every 3s),
+    custom expressions, smooth transitions with 0.5s fade in/out
+  - Facial expressions: 7 presets (default, smile, funnyFace, sad, surprised,
+    angry, crazy) mapped to 27+ morph targets with lerp interpolation
+  - Lip-sync: viseme-based mouth movement synced to audio playback timing
+  - Eye animation: randomized blinking (1–5 second intervals), wink support
+  - Leva debug panel: real-time morph target tuning, animation selection
+
+Experience.tsx
+  Composes the 3D scene:
+  - Camera positions: default [0,0,5] and zoomed [0,1.5,1.5]
+  - Environment: sunset preset lighting
+  - ContactShadows for realistic grounding
+  - Loading indicator (animated dots) during API calls
+
+UI.tsx
+  User interface layer:
+  - Text input with Enter-key and button submission
+  - Voice mode via Web Speech API with continuous auto-restart listening
+  - Visual pulse indicators: green=ready, red=listening, yellow=processing
+  - Camera zoom toggle, green screen toggle
+  - GreenTech branding header (version 1.0.1)
+
+CustomizationPanel.tsx
+  Avatar customization:
+  - Model loader: file upload (drag-and-drop) or URL input
+  - Position sliders (X/Y/Z, range -2 to +2)
+  - Scale slider (0.1 to 2.5)
+  - Background presets (Sunset, Night, Ocean, Forest, Rose, White) + custom color
+  - Idle animation selector (6 options)
+  - Reset-to-defaults button
+
+
+HOOKS (STATE MANAGEMENT)
+------------------------
+
+useChat.tsx
+  Manages chat state and backend communication:
+  - API call: POST {VITE_API_URL}/chat with { message: string }
+  - Default API URL: http://localhost:3000
+  - Queues multiple response messages for sequential playback
+  - Handles base64 audio decoding and HTML5 Audio playback
+  - Removes message from queue after audio finishes playing
+
+  ChatMessage interface:
+    text             — Avatar response text
+    audio            — Base64-encoded MP3
+    animation        — Animation name to play
+    facialExpression — Expression name
+    lipsync          — { mouthCues: [{ start, end, value }] }
+
+useAvatarConfig.tsx
+  Manages avatar appearance state:
+  - glbUrl       — Model file URL
+  - position     — [x, y, z] 3D position
+  - scale        — Scale multiplier (default 1.0)
+  - background   — CSS background string
+  - idleAnimation — Default idle animation name
+
+  Defaults:
+    Model: /models/64f1a714fe61576b46f27ca2.glb
+    Background: Sunset gradient
+    Idle: "Idle"
+
+
+BUILD & SCRIPTS
+---------------
+  npm run dev        — Development server with HMR
+  npm run build      — TypeScript check + Vite production build
+  npm run preview    — Preview production build
+  npm run typecheck  — Type validation only
+
+TypeScript: ES2020 target, strict mode, no unused locals/parameters.
+
+
+================================================================================
+PART 2: BACKEND — Demo_Avatar_backend_fastapi
+================================================================================
+
+LOCATION
+--------
+/Users/omidshojaeianzanjani/Documents/GreenTech/Avatar/newDeployment/Demo_Avatar_backend_fastapi
+
+PURPOSE
+-------
+AI-powered REST API that processes chat messages using RAG over a CV PDF,
+generates LLM responses with facial expression and animation metadata,
+synthesizes speech via Microsoft Edge TTS, and produces lip-sync data via
+Rhubarb. Returns structured JSON consumed directly by the frontend avatar.
+
+
+TECH STACK
+----------
+- FastAPI >= 0.110       — Async Python web framework
+- Uvicorn >= 0.27        — ASGI server
+- OpenAI SDK >= 1.14     — Client used for Ollama API compatibility
+- LangChain >= 0.1       — LLM orchestration and RAG framework
+- LangChain-Ollama       — Ollama LLM and embedding integration
+- ChromaDB >= 0.4        — Local vector database for semantic search
+- PyPDF >= 3.0           — PDF loading and text extraction
+- Edge-TTS >= 6.1.9      — Microsoft Edge Text-to-Speech engine
+- Pydantic >= 2.0        — Data validation and serialization
+- python-dotenv          — Environment variable management
+- Rhubarb (binary)       — Lip-sync analysis from audio
+- FFmpeg                 — Audio conversion (MP3 → WAV for Rhubarb)
+
+
+API ENDPOINTS
+-------------
+
+GET /
+  Health check.
+  Returns: { "status": "GreenTech Avatar Backend — FastAPI + RAG + edge-tts" }
+
+POST /chat
+  Main chat endpoint.
+  Request:  { "message": string }
+  Response: {
+    "messages": [{
+      "text": "...",
+      "audio": "<base64 MP3>",
+      "lipsync": { "mouthCues": [{ "start", "end", "value" }] },
+      "facialExpression": "smile|sad|angry|surprised|funnyFace|default",
+      "animation": "Talking_0|Talking_1|Talking_2|Crying|Laughing|Rumba|..."
+    }]
+  }
+  Empty message: returns pre-baked intro (intro_0.mp3 + intro_0.json).
+
+POST /prepare-db
+  Rebuild or reload the ChromaDB vector store from the CV PDF.
+  Request:  { "force": bool }
+  Response: { "status": "ok", "db": "created|loaded", "chunks": <count> }
+
+
+AI PIPELINE (per /chat request)
+--------------------------------
+
+  1. RAG RETRIEVAL
+     User query is semantically matched against ChromaDB (k=5 top chunks).
+     Full CV text also injected as context fallback.
+
+  2. LLM GENERATION (Ollama)
+     System prompt + CV context + user question sent to local LLM.
+     Model: phi3:3.8b (default) or llama3.2:3b (via .env).
+     Output format enforced as JSON with fields: text, facialExpression, animation.
+     Temperature: 0.2 | Max tokens: 1000
+
+  3. TEXT-TO-SPEECH (Edge TTS)
+     Response text converted to MP3 using Microsoft Edge TTS.
+     Default voice: en-US-JennyNeural (configurable).
+     No API key required.
+
+  4. LIP-SYNC (Rhubarb)
+     MP3 converted to WAV via FFmpeg.
+     Rhubarb analyzes phonemes and outputs frame-by-frame mouth cues (JSON).
+     Fallback: empty lip-sync returned if Rhubarb unavailable.
+
+  5. RESPONSE ASSEMBLY
+     Base64-encoded MP3 + lip-sync JSON + expression/animation metadata
+     returned as structured JSON to the frontend.
+
+
+VECTOR DATABASE (ChromaDB)
+--------------------------
+  Storage:    ./chroma_db (SQLite-backed, persistent)
+  Documents:  CV PDF chunks (300 chars, 50-char overlap)
+  Embeddings: nomic-embed-text model (via Ollama)
+  Retrieval:  Semantic similarity, k=5 top results
+
+
+KEY FILES
+---------
+  main.py             Single-file application: all routes, RAG, LLM, TTS, lip-sync
+  requirements.txt    Python dependencies
+  .env                Runtime configuration (Ollama URL, model, voice, PDF path)
+  .env.example        Configuration template
+  chroma_db/          Persistent vector database directory
+  audios/             Pre-baked intro audio files (intro_0.mp3)
+  bin/rhubarb         Lip-sync binary executable
+
+
+ENVIRONMENT VARIABLES
+---------------------
+  OLLAMA_BASE_URL    — http://localhost:11434/v1
+  OLLAMA_MODEL       — phi3:3.8b (or llama3.2:3b)
+  EDGE_TTS_VOICE     — en-US-JennyNeural
+  PORT               — 3000
+  PDF_PATH           — Path to the CV PDF file
+  CHROMA_DIR         — ./chroma_db
+  EMBED_MODEL        — nomic-embed-text
+
+
+STARTUP (lifespan)
+------------------
+  - ChromaDB vector store loaded (or created from PDF if missing)
+  - Full CV text cached in memory
+  - LangChain retriever initialized (k=5)
+  - Server ready to accept requests
+
+
+DESIGN DECISIONS
+----------------
+  - All LLM inference is local (Ollama) — private, no external API costs
+  - Minimal system prompt (40 tokens) to maximize context for CV data
+  - Low temperature (0.2) for deterministic, repeatable responses
+  - Pre-baked intro bypasses LLM latency for first interaction
+  - Async architecture throughout for non-blocking I/O
+  - Graceful degradation: lip-sync failure does not break the response
+  - JSON-enforced LLM output with fallback parsing for malformed responses
+
+
+================================================================================
+PART 3: SYSTEM ARCHITECTURE (END-TO-END)
+================================================================================
+
+                         [ USER ]
+                            |
+               Text input or Voice (Web Speech API)
+                            |
+                     [ FRONTEND ]
+                   React + Three.js
+                            |
+                  POST /chat { message }
+                            |
+                     [ BACKEND ]
+                     FastAPI server
+                     (port 3000)
+                            |
+              ┌─────────────┼─────────────┐
+              |             |             |
+         [ChromaDB]    [Ollama LLM]  [Edge TTS]
+         RAG Search    phi3/llama3   Jenny Neural
+              |             |             |
+         CV Context    JSON Response    MP3 Audio
+              |             |             |
+              └─────────────┼─────────────┘
+                            |
+                       [Rhubarb]
+                       Lip-sync cues
+                            |
+              Structured JSON response:
+              { text, audio(base64), lipsync, expression, animation }
+                            |
+                     [ FRONTEND ]
+                            |
+              ┌─────────────┼─────────────┐
+              |             |             |
+         [3D Avatar]  [Audio Playback]  [UI Update]
+         Animation +    HTML5 Audio    Chat display
+         Lip-sync +
+         Expression
+
+
+================================================================================
+PART 4: FEATURES SUMMARY
+================================================================================
+
+FRONTEND FEATURES
+-----------------
+  - Real-time 3D avatar rendering with animation blending
+  - 9 animation states: Idle, Talking (x3), Laughing, Crying, Angry,
+    Rumba, Terrified
+  - 7 facial expression presets with 27+ morph targets
+  - Lip-sync driven by viseme data from backend
+  - Randomized eye-blinking for realism
+  - Voice input via browser Web Speech API
+  - Text input with queue-based response playback
+  - Camera zoom toggle
+  - Green screen mode (for streaming/recording)
+  - Avatar customization: model upload, position, scale, background, animation
+  - Leva debug panel for real-time parameter tuning
+
+BACKEND FEATURES
+----------------
+  - RAG over PDF CV: semantic search using ChromaDB + nomic-embed-text
+  - Local LLM inference via Ollama (fully private, no cloud dependency)
+  - Structured LLM output: text + facialExpression + animation fields
+  - Microsoft Edge TTS with configurable neural voice
+  - Automated lip-sync via Rhubarb phonetic analysis
+  - Pre-baked intro for instant first response
+  - /prepare-db endpoint for reindexing the CV document
+  - Async architecture, CORS open for frontend integration
+
+
+================================================================================
+PART 5: DEPENDENCIES & REQUIREMENTS
+================================================================================
+
+FRONTEND DEPENDENCIES
+---------------------
+  three                   0.153.0
+  @react-three/fiber      8.13.3
+  @react-three/drei       9.75.0
+  @react-three/xr         5.7.1
+  react                   18.2.0
+  react-dom               18.2.0
+  typescript              5.0.x
+  tailwindcss             3.3.3
+  leva                    0.9.35
+  vite                    4.1.0
+
+BACKEND DEPENDENCIES
+--------------------
+  fastapi                 >= 0.110.0
+  uvicorn                 >= 0.27.0
+  openai                  >= 1.14.0
+  langchain               >= 0.1.0
+  langchain-community     >= 0.0.1
+  langchain-ollama        >= 0.1.0
+  langchain-text-splitters >= 0.0.1
+  chromadb                >= 0.4.0
+  pypdf                   >= 3.0.0
+  edge-tts                >= 6.1.9
+  pydantic                >= 2.0.0
+  python-dotenv           >= 1.0.0
+
+EXTERNAL SERVICES / TOOLS (must be installed separately)
+---------------------------------------------------------
+  Ollama                  Local LLM server (http://localhost:11434)
+  FFmpeg                  Audio conversion utility
+  Rhubarb                 Lip-sync binary (included in /bin/)
+
+
+================================================================================
+PART 6: RUNNING THE PROJECT
+================================================================================
+
+BACKEND
+-------
+  1. Install dependencies:   pip install -r requirements.txt
+  2. Start Ollama:           ollama serve
+  3. Pull models:            ollama pull phi3:3.8b
+                             ollama pull nomic-embed-text
+  4. Configure .env:         copy .env.example to .env, set PDF_PATH
+  5. Index the CV:           POST /prepare-db  (or auto-runs on startup)
+  6. Start server:           uvicorn main:app --reload --port 3000
+
+FRONTEND
+--------
+  1. Install dependencies:   npm install
+  2. Configure .env:         set VITE_API_URL=http://localhost:3000
+  3. Start dev server:       npm run dev
+  4. Open browser:           http://localhost:5173
+
+
+================================================================================
+NOTES & OBSERVATIONS
+================================================================================
+
+  - The project is entirely self-hosted: all AI inference runs locally via
+    Ollama with no external API keys or cloud costs for LLM/embeddings.
+
+  - Edge TTS is the only external cloud dependency (Microsoft's public TTS
+    service, no API key required).
+
+  - The avatar model is in ReadyPlayerMe format (GLB), which is widely
+    compatible and can be replaced with any ReadyPlayerMe avatar via the
+    customization panel.
+
+  - The backend is intentionally kept as a single file (main.py, ~241 lines),
+    prioritizing simplicity and ease of deployment over modular abstraction.
+
+  - The system is designed as a personal AI representative — the RAG knowledge
+    base is a single CV PDF, and the LLM is instructed to refuse questions
+    outside that scope.
+
+  - Version: 1.0.1 (frontend package.json)
+  - License: UNLICENSED (private project)
+
+
+================================================================================
+END OF REPORT
+================================================================================

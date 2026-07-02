@@ -1,11 +1,12 @@
-import { useAnimations, useGLTF } from "@react-three/drei";
+import { useAnimations, useGLTF, Html } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { button, useControls } from "leva";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import * as THREE from "three";
 import type { AnimationMixer, Group, Object3D } from "three";
 import { GLTF } from "three-stdlib";
 import { useChat } from "../hooks/useChat";
+import { useAvatarConfig } from "../hooks/useAvatarConfig";
 
 interface ExtendedAnimationMixer extends AnimationMixer {
   stats: { actions: { inUse: number } };
@@ -123,12 +124,13 @@ const corresponding: Record<string, string> = {
 let setupMode = false;
 
 export function Avatar(props: JSX.IntrinsicElements["group"]) {
-  const { nodes, materials, scene } = useGLTF("/models/64f1a714fe61576b46f27ca2.glb") as unknown as AvatarGLTF;
+  const { config } = useAvatarConfig();
+  const { nodes, scene } = useGLTF(config.glbUrl) as unknown as AvatarGLTF;
 
-  const { message, onMessagePlayed, chat } = useChat();
+  const { message, onMessagePlayed, chat, loading, setAudioProgress } = useChat();
 
   const [lipsync, setLipsync] = useState<{ mouthCues: { start: number; end: number; value: string }[] } | null>(null);
-  const [animation, setAnimation] = useState("Standing Idle");
+  const [animation, setAnimation] = useState(config.idleAnimation);
   const [facialExpression, setFacialExpression] = useState<FacialExpressionName>("default");
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
 
@@ -140,24 +142,29 @@ export function Avatar(props: JSX.IntrinsicElements["group"]) {
 
   const { animations } = useGLTF("/models/animations.glb");
   const group = useRef<Group>(null!);
-  const { actions, mixer } = useAnimations(animations, group) as ReturnType<typeof useAnimations> & { mixer: ExtendedAnimationMixer };
+
+  const { actions } = useAnimations(animations, group) as ReturnType<typeof useAnimations> & { mixer: ExtendedAnimationMixer };
+
+  // Dynamically find the head node (prioritize nodes with eyeBlinkLeft)
+  const headNode = useMemo(() => {
+    let bestNode: THREE.SkinnedMesh | null = null;
+    scene.traverse((child) => {
+      if (child instanceof THREE.SkinnedMesh && child.morphTargetDictionary) {
+        if (!bestNode || child.morphTargetDictionary['eyeBlinkLeft'] !== undefined) {
+          bestNode = child;
+        }
+      }
+    });
+    return bestNode;
+  }, [scene]);
+
+  // Pre-calculate lowercased mappings to optimize lerpMorphTarget
+  const targetKeyCache = useRef<Record<string, string>>({});
 
   useEffect(() => {
     if (!animations.length) return;
-    const hasIdle = animations.some((a) => a.name === "Standing Idle");
-    const idle = hasIdle ? "Standing Idle" : animations[0]?.name ?? "Standing Idle";
-    setAnimation(idle);
-
-    // Directly play idle — actions may already be populated even if ref didn't change
-    const tryPlay = () => {
-      const idleAction = actions?.[idle];
-      if (idleAction) {
-        idleAction.reset().fadeIn(0).play();
-      } else {
-        setTimeout(tryPlay, 100); // retry until actions are ready
-      }
-    };
-    tryPlay();
+    const hasIdle = animations.some((a) => a.name === config.idleAnimation);
+    setAnimation(hasIdle ? config.idleAnimation : animations[0]?.name ?? config.idleAnimation);
   }, [animations]);
 
   useEffect(() => {
@@ -167,11 +174,10 @@ export function Avatar(props: JSX.IntrinsicElements["group"]) {
     }
 
     if (!message) {
-      setAnimation("Standing Idle");
+      setAnimation(config.idleAnimation);
       return;
     }
 
-    // Validate animation — fallback to random talking if not found
     const validAnimations = animations.map((a) => a.name);
     const requestedAnim = message.animation;
     const resolvedAnim = validAnimations.includes(requestedAnim)
@@ -182,7 +188,6 @@ export function Avatar(props: JSX.IntrinsicElements["group"]) {
     setFacialExpression((message.facialExpression as FacialExpressionName) ?? "default");
     setLipsync(message.lipsync);
 
-    // Cycle talking animations every 3s during speech
     if (talkingAnimations.includes(resolvedAnim)) {
       animationCycleRef.current = setInterval(() => {
         const next = talkingAnimations[Math.floor(Math.random() * talkingAnimations.length)];
@@ -193,55 +198,91 @@ export function Avatar(props: JSX.IntrinsicElements["group"]) {
     const audioEl = new Audio("data:audio/mp3;base64," + message.audio);
     const playPromise = audioEl.play();
     setAudio(audioEl);
+    
+    audioEl.ontimeupdate = () => {
+      if (audioEl.duration > 0) {
+        setAudioProgress(audioEl.currentTime / audioEl.duration);
+      }
+    };
+    
     audioEl.onended = () => {
       if (animationCycleRef.current) {
         clearInterval(animationCycleRef.current);
         animationCycleRef.current = null;
       }
-      setAnimation("Standing Idle");
+      setAnimation(config.idleAnimation);
+      setAudioProgress(0);
       setTimeout(() => onMessagePlayed(), 600);
     };
-    audioEl.onerror = onMessagePlayed;
+    audioEl.onerror = () => {
+      setAudioProgress(0);
+      onMessagePlayed();
+    };
     if (playPromise && typeof playPromise.catch === "function") {
-      playPromise.catch(() => onMessagePlayed());
+      playPromise.catch(() => {
+        setAudioProgress(0);
+        onMessagePlayed();
+      });
     }
   }, [message]);
 
   useEffect(() => {
     const action = actions?.[animation];
     if (!action) return;
-    const inUse = mixer?.stats?.actions?.inUse ?? 0;
-    action.reset().fadeIn(inUse === 0 ? 0 : 0.5).play();
+    action.reset().fadeIn(0.5).play();
     return () => { action.fadeOut(0.5); };
   }, [animation, actions]);
+
+  useEffect(() => {
+    if (!message) setAnimation(config.idleAnimation);
+  }, [config.idleAnimation]);
 
   const lerpMorphTarget = (target: string, value: number, speed = 0.1) => {
     scene.traverse((child: Object3D) => {
       if (!(child instanceof THREE.SkinnedMesh) || !child.morphTargetDictionary) return;
-      const index = child.morphTargetDictionary[target];
+      
+      let actualKey = target;
+      if (child.morphTargetDictionary[actualKey] === undefined) {
+        const cacheKey = `${child.uuid}_${target}`;
+        if (!targetKeyCache.current[cacheKey]) {
+           const lowerTarget = target.toLowerCase();
+           const found = Object.keys(child.morphTargetDictionary).find(k => k.toLowerCase() === lowerTarget);
+           if (found) {
+               targetKeyCache.current[cacheKey] = found;
+           } else {
+               targetKeyCache.current[cacheKey] = target; // fallback
+           }
+        }
+        actualKey = targetKeyCache.current[cacheKey];
+      }
+
+      const index = child.morphTargetDictionary[actualKey];
       if (index === undefined || child.morphTargetInfluences![index] === undefined) return;
       child.morphTargetInfluences![index] = THREE.MathUtils.lerp(
         child.morphTargetInfluences![index],
         value,
         speed
       );
-      if (!setupMode) {
-        try { set({ [target]: value }); } catch (_) {}
-      }
+      
+      // Removed the heavy set() call here for performance. The setupMode slider will still work if setupMode is true 
+      // because the slider's onChange handler calls lerpMorphTarget directly.
     });
   };
 
   useFrame(() => {
     if (setupMode) return;
 
-    const eyeNode = nodes.EyeLeft;
-    if (!eyeNode?.morphTargetDictionary) return;
-
-    Object.keys(eyeNode.morphTargetDictionary).forEach((key) => {
-      if (key === "eyeBlinkLeft" || key === "eyeBlinkRight") return;
-      const mapping = facialExpressions[facialExpression];
-      lerpMorphTarget(key, mapping?.[key] ?? 0, 0.1);
-    });
+    if (headNode?.morphTargetDictionary) {
+      Object.keys(headNode.morphTargetDictionary).forEach((key) => {
+        if (key === "eyeBlinkLeft" || key === "eyeBlinkRight") return;
+        
+        // Don't let facial expressions overwrite lip-sync visemes!
+        if (key.toLowerCase().startsWith("viseme_")) return;
+        
+        const mapping = facialExpressions[facialExpression];
+        lerpMorphTarget(key, mapping?.[key] ?? 0, 0.1);
+      });
+    }
 
     lerpMorphTarget("eyeBlinkLeft", blink || winkLeft ? 1 : 0, 0.5);
     lerpMorphTarget("eyeBlinkRight", blink || winkRight ? 1 : 0, 0.5);
@@ -290,29 +331,27 @@ export function Avatar(props: JSX.IntrinsicElements["group"]) {
     enableSetupMode: button(() => { setupMode = true; }),
     disableSetupMode: button(() => { setupMode = false; }),
     logMorphTargetValues: button(() => {
-      const eyeNode = nodes.EyeLeft;
-      if (!eyeNode?.morphTargetDictionary) return;
+      if (!headNode?.morphTargetDictionary) return;
       const emotionValues: MorphTargetValues = {};
-      Object.keys(eyeNode.morphTargetDictionary).forEach((key) => {
+      Object.keys(headNode.morphTargetDictionary).forEach((key) => {
         if (key === "eyeBlinkLeft" || key === "eyeBlinkRight") return;
-        const idx = eyeNode.morphTargetDictionary![key];
-        const val = eyeNode.morphTargetInfluences![idx];
+        const idx = headNode.morphTargetDictionary![key];
+        const val = headNode.morphTargetInfluences![idx];
         if (val > 0.01) emotionValues[key] = val;
       });
       console.log(JSON.stringify(emotionValues, null, 2));
     }),
   });
 
-  const [, set] = useControls("MorphTarget", () => {
-    const eyeNode = nodes.EyeLeft;
-    if (!eyeNode?.morphTargetDictionary) return {};
+  useControls("MorphTarget", () => {
+    if (!headNode?.morphTargetDictionary) return {};
     return Object.assign(
       {},
-      ...Object.keys(eyeNode.morphTargetDictionary).map((key) => ({
+      ...Object.keys(headNode.morphTargetDictionary).map((key) => ({
         [key]: {
           label: key,
           value: 0,
-          min: eyeNode.morphTargetInfluences![eyeNode.morphTargetDictionary![key]],
+          min: headNode.morphTargetInfluences![headNode.morphTargetDictionary![key]],
           max: 1,
           onChange: (val: number) => {
             if (setupMode) lerpMorphTarget(key, val, 1);
@@ -320,7 +359,7 @@ export function Avatar(props: JSX.IntrinsicElements["group"]) {
         },
       }))
     );
-  });
+  }, [headNode]);
 
   useEffect(() => {
     let blinkTimeout: ReturnType<typeof setTimeout>;
@@ -338,20 +377,11 @@ export function Avatar(props: JSX.IntrinsicElements["group"]) {
   }, []);
 
   return (
-    <group {...props} dispose={null} ref={group}>
-      <primitive object={nodes.Hips} />
-      <skinnedMesh name="Wolf3D_Body" geometry={nodes.Wolf3D_Body.geometry} material={materials.Wolf3D_Body} skeleton={nodes.Wolf3D_Body.skeleton} />
-      <skinnedMesh name="Wolf3D_Outfit_Bottom" geometry={nodes.Wolf3D_Outfit_Bottom.geometry} material={materials.Wolf3D_Outfit_Bottom} skeleton={nodes.Wolf3D_Outfit_Bottom.skeleton} />
-      <skinnedMesh name="Wolf3D_Outfit_Footwear" geometry={nodes.Wolf3D_Outfit_Footwear.geometry} material={materials.Wolf3D_Outfit_Footwear} skeleton={nodes.Wolf3D_Outfit_Footwear.skeleton} />
-      <skinnedMesh name="Wolf3D_Outfit_Top" geometry={nodes.Wolf3D_Outfit_Top.geometry} material={materials.Wolf3D_Outfit_Top} skeleton={nodes.Wolf3D_Outfit_Top.skeleton} />
-      <skinnedMesh name="Wolf3D_Hair" geometry={nodes.Wolf3D_Hair.geometry} material={materials.Wolf3D_Hair} skeleton={nodes.Wolf3D_Hair.skeleton} />
-      <skinnedMesh name="EyeLeft" geometry={nodes.EyeLeft.geometry} material={materials.Wolf3D_Eye} skeleton={nodes.EyeLeft.skeleton} morphTargetDictionary={nodes.EyeLeft.morphTargetDictionary} morphTargetInfluences={nodes.EyeLeft.morphTargetInfluences} />
-      <skinnedMesh name="EyeRight" geometry={nodes.EyeRight.geometry} material={materials.Wolf3D_Eye} skeleton={nodes.EyeRight.skeleton} morphTargetDictionary={nodes.EyeRight.morphTargetDictionary} morphTargetInfluences={nodes.EyeRight.morphTargetInfluences} />
-      <skinnedMesh name="Wolf3D_Head" geometry={nodes.Wolf3D_Head.geometry} material={materials.Wolf3D_Skin} skeleton={nodes.Wolf3D_Head.skeleton} morphTargetDictionary={nodes.Wolf3D_Head.morphTargetDictionary} morphTargetInfluences={nodes.Wolf3D_Head.morphTargetInfluences} />
-      <skinnedMesh name="Wolf3D_Teeth" geometry={nodes.Wolf3D_Teeth.geometry} material={materials.Wolf3D_Teeth} skeleton={nodes.Wolf3D_Teeth.skeleton} morphTargetDictionary={nodes.Wolf3D_Teeth.morphTargetDictionary} morphTargetInfluences={nodes.Wolf3D_Teeth.morphTargetInfluences} />
+    <group {...props} dispose={null} ref={group} position={config.position} scale={config.scale} rotation={[0, -Math.PI / 2, 0]}>
+      <primitive object={scene} />
+
     </group>
   );
 }
 
-useGLTF.preload("/models/64f1a714fe61576b46f27ca2.glb");
 useGLTF.preload("/models/animations.glb");

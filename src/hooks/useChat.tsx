@@ -18,6 +18,8 @@ export interface ChatMessage {
   animation: string;
   facialExpression: string;
   lipsync: LipSyncData;
+  youtube_urls?: string[];
+  images?: string[];
 }
 
 interface ChatContextType {
@@ -27,6 +29,8 @@ interface ChatContextType {
   loading: boolean;
   cameraZoomed: boolean;
   setCameraZoomed: (zoomed: boolean) => void;
+  audioProgress: number;
+  setAudioProgress: (progress: number) => void;
 }
 
 const ChatContext = createContext<ChatContextType | null>(null);
@@ -36,6 +40,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   const [message, setMessage] = useState<ChatMessage | null>(null);
   const [loading, setLoading] = useState(false);
   const [cameraZoomed, setCameraZoomed] = useState(true);
+  const [audioProgress, setAudioProgress] = useState(0);
 
   const chat = async (userMessage: string) => {
     setLoading(true);
@@ -78,7 +83,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <ChatContext.Provider
-      value={{ chat, message, onMessagePlayed, loading, cameraZoomed, setCameraZoomed }}
+      value={{ chat, message, onMessagePlayed, loading, cameraZoomed, setCameraZoomed, audioProgress, setAudioProgress }}
     >
       {children}
     </ChatContext.Provider>

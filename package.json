@@ -11,6 +11,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@pixiv/three-vrm": "^3.5.4",
     "@react-three/drei": "9.75.0",
     "@react-three/fiber": "8.13.3",
     "@react-three/xr": "^5.7.1",
@@ -18,9 +19,12 @@
     "leva": "^0.9.35",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-router-dom": "^7.18.0",
+    "react-youtube": "^10.1.0",
     "three": "0.153.0"
   },
   "devDependencies": {
+    "@types/dom-speech-recognition": "^0.0.12",
     "@types/react": "^18.0.27",
     "@types/react-dom": "^18.0.10",
     "@vitejs/plugin-react": "^3.1.0",

@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GreenTech Avatar — Presentation</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green: #4ade80;
+      --green-dark: #16a34a;
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --border: #2a2d3a;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #4ade80;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: rgba(15, 17, 23, 0.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    nav .brand {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--green);
+      letter-spacing: 0.04em;
+    }
+
+    nav .slides-list {
+      display: flex;
+      gap: 0.25rem;
+      list-style: none;
+      flex-wrap: wrap;
+    }
+
+    nav .slides-list a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.72rem;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    nav .slides-list a:hover { color: var(--green); background: rgba(74,222,128,0.08); }
+
+    /* ── SLIDE ── */
+    .slide {
+      min-height: 100vh;
+      padding: 7rem 2rem 4rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      border-bottom: 1px solid var(--border);
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .slide-number {
+      font-size: 0.72rem;
+      color: var(--green);
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+
+    .slide h1 {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 0.5rem;
+    }
+
+    .slide h2 {
+      font-size: clamp(1.4rem, 3.5vw, 2rem);
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 1.5rem;
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      color: var(--muted);
+      margin-bottom: 2rem;
+    }
+
+    .tag {
+      display: inline-block;
+      background: rgba(74,222,128,0.12);
+      color: var(--green);
+      border: 1px solid rgba(74,222,128,0.3);
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 3px 12px;
+      margin-right: 6px;
+      margin-bottom: 6px;
+    }
+
+    /* ── BULLETS ── */
+    ul.bullets {
+      list-style: none;
+      margin-bottom: 2rem;
+    }
+
+    ul.bullets li {
+      position: relative;
+      padding-left: 1.4rem;
+      margin-bottom: 0.7rem;
+      font-size: 1.05rem;
+      color: var(--text);
+    }
+
+    ul.bullets li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.55em;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+
+    ul.bullets li strong { color: var(--green); }
+
+    /* ── SPEAKER NOTES ── */
+    .notes {
+      margin-top: 2rem;
+      padding: 1rem 1.25rem;
+      background: var(--surface);
+      border-left: 3px solid var(--green-dark);
+      border-radius: 0 6px 6px 0;
+      font-size: 0.88rem;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .notes-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--green-dark);
+      font-style: normal;
+      display: block;
+      margin-bottom: 0.35rem;
+    }
+
+    /* ── VISUAL HINT ── */
+    .visual-hint {
+      margin-top: 1.5rem;
+      padding: 0.85rem 1.1rem;
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .visual-hint span { color: var(--green); font-weight: 600; }
+
+    /* ── ARCHITECTURE BOX ── */
+    .arch {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.82rem;
+      color: #a3e635;
+      line-height: 1.9;
+      margin-bottom: 1.5rem;
+      white-space: pre;
+      overflow-x: auto;
+    }
+
+    /* ── TABLE ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+    }
+
+    th {
+      text-align: left;
+      padding: 0.6rem 1rem;
+      background: var(--surface);
+      color: var(--green);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      border-bottom: 2px solid var(--border);
+    }
+
+    td {
+      padding: 0.6rem 1rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      vertical-align: top;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    td:first-child { color: var(--green); font-weight: 600; }
+
+    .check { color: #4ade80; font-weight: 700; }
+    .cross  { color: #f87171; font-weight: 700; }
+
+    /* ── GRID ── */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.1rem 1.3rem;
+    }
+
+    .card-icon { font-size: 1.5rem; margin-bottom: 0.4rem; }
+    .card-title { font-weight: 700; font-size: 0.95rem; color: var(--green); margin-bottom: 0.35rem; }
+    .card-body  { font-size: 0.85rem; color: var(--muted); }
+
+    /* ── PIPELINE ── */
+    .pipeline {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .pip-step {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.45rem 0.9rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .pip-arrow { color: var(--green); font-size: 1.1rem; font-weight: 700; }
+
+    /* ── STACK TAGS ── */
+    .stack-group { margin-bottom: 1.2rem; }
+    .stack-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--green);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.4rem;
+    }
+
+    /* ── ROADMAP ── */
+    .roadmap { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+
+    .roadmap-col {
+      flex: 1;
+      min-width: 200px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.2rem;
+    }
+
+    .roadmap-col.done { border-top: 3px solid var(--green); }
+    .roadmap-col.next { border-top: 3px solid #60a5fa; }
+
+    .roadmap-col-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 0.7rem;
+    }
+
+    .done .roadmap-col-title { color: var(--green); }
+    .next .roadmap-col-title { color: #60a5fa; }
+
+    .roadmap-col li {
+      list-style: none;
+      font-size: 0.87rem;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+      padding-left: 1.1rem;
+      position: relative;
+    }
+
+    .done li::before { content: '✓'; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+    .next li::before { content: '→'; position: absolute; left: 0; color: #60a5fa; }
+
+    /* ── TITLE SLIDE ── */
+    .slide-title { text-align: center; align-items: center; }
+    .slide-title h1 { font-size: clamp(2.5rem, 7vw, 4rem); }
+    .slide-title .subtitle { max-width: 560px; text-align: center; }
+    .badge-row { display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2rem; }
+
+    /* ── DIVIDER ── */
+    .divider {
+      width: 48px; height: 3px;
+      background: var(--green);
+      border-radius: 2px;
+      margin: 0.75rem 0 1.5rem;
+    }
+
+    /* ── QA SLIDE ── */
+    .qa-big {
+      font-size: clamp(3rem, 10vw, 6rem);
+      font-weight: 800;
+      color: var(--green);
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--muted);
+      font-size: 0.8rem;
+      border-top: 1px solid var(--border);
+    }
+
+    @media (max-width: 600px) {
+      .grid-2 { grid-template-columns: 1fr; }
+      nav .slides-list { display: none; }
+      .arch { font-size: 0.68rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <div class="brand">GreenTech Avatar</div>
+  <ul class="slides-list">
+    <li><a href="#s1">01 Title</a></li>
+    <li><a href="#s2">02 Problem</a></li>
+    <li><a href="#s3">03 Solution</a></li>
+    <li><a href="#s4">04 Demo</a></li>
+    <li><a href="#s5">05 Architecture</a></li>
+    <li><a href="#s6">06 AI Pipeline</a></li>
+    <li><a href="#s7">07 Avatar Engine</a></li>
+    <li><a href="#s8">08 Features</a></li>
+    <li><a href="#s9">09 Privacy</a></li>
+    <li><a href="#s10">10 Use Cases</a></li>
+    <li><a href="#s11">11 Tech Stack</a></li>
+    <li><a href="#s12">12 Roadmap</a></li>
+    <li><a href="#s13">13 Q&amp;A</a></li>
+  </ul>
+</nav>
+
+<!-- ════════════════════════════════ SLIDE 01 ════════════════════════════════ -->
+<section class="slide slide-title" id="s1">
+  <div class="slide-number">01 / 13</div>
+  <h1>GreenTech Avatar</h1>
+  <div class="divider" style="margin: 0.75rem auto 1.5rem;"></div>
+  <p class="subtitle">Your AI-Powered 3D Virtual Assistant —<br>Fully Local, Always Available</p>
+  <div class="badge-row">
+    <span class="tag">3D Avatar</span>
+    <span class="tag">Local LLM</span>
+    <span class="tag">RAG</span>
+    <span class="tag">Lip-Sync</span>
+    <span class="tag">Privacy-First</span>
+  </div>
+
+  <div class="notes">
+    <span class="notes-label">Speaker Notes</span>
+    Good morning / afternoon. What you're seeing is GreenTech Avatar — a self-hosted AI virtual assistant that looks, speaks, and responds like a real person. In the next 10 minutes I'll show you how it works, what makes it different, and why that matters.
+  </div>
+
+  <div class="visual-hint"><span>Visual:</span> Full-screen render of the 3D avatar. Screenshot from the app in green-screen mode recommended.</div>
+</section>
+
+<!-- ════════════════════════════════ SLIDE 02 ════════════════════════════════ -->
+<section class="slide" id="s2">
+  <div class="slide-number">02 / 13</div>
+  <h2>The Problem: Static Knowledge Delivery is Broken</h2>
+  <div class="divider"></div>
+
+  <ul class="bullets">
+    <li>Websites, CVs, and FAQs are <strong>passive</strong> — users must search, read, and interpret on their own</li>
+    <li>Human support agents are <strong>expensive</strong> and unavailable 24/7</li>
+    <li>Cloud AI chatbots raise serious <strong>data privacy concerns</strong> — GDPR, sensitive documents</li>
+    <li>Existing avatar solutions are <strong>shallow, scripted, and non-customizable</strong></li>
+    <li>First impressions matter — <strong>text alone doesn't engage</strong></li>
+  </ul>
+
+  <div class="notes">
+    <span class="notes-label">Speaker Notes</span>
+    Think about the last time you visited a company's "About" page or read a long FAQ. You probably skimmed it, missed important details, or gave up. Meanwhile, businesses pay for support agents who can't work around the clock — and cloud AI options mean sending sensitive business data to third parties.
+  </div>
+
+  <div class="visual-hint"><span>Visual:</span> Split screen — left: a dull FAQ/text page. Right: the avatar speaking with expressions.</div>
+</section>
+
+<!-- ════════════════════════════════ SLIDE 03 ════════════════════════════════ -->
+<section class="slide" id="s3">
+  <div class="slide-number">03 / 13</div>
+  <h2>Our Solution: Conversational AI That Feels Human</h2>
+  <div class="divider"></div>
+
+  <ul class="bullets">
+    <li>Ask any question — the avatar answers <strong>from your custom knowledge base</strong></li>
+    <li>Speaks with synchronized <strong>lip movements, facial expressions, and body animations</strong></li>
+    <li>Dual input: <strong>type or talk</strong> via Web Speech API voice recognition</li>
+    <li><strong>Self-hosted</strong> — your data never leaves your machine</li>
+    <li>Fully customizable: <strong>model, voice, personality, and appearance</strong></li>
+  </ul>
+
+  <div class="notes">
+    <span class="notes-label">Speaker Notes</span>
+    GreenTech Avatar transforms your documents — a CV, a product manual, a knowledge base — into a living, breathing assistant. The avatar listens, thinks, and responds with emotion and movement, making interactions memorable and efficient.
+  </div>
+
+  <div class="visual-hint"><span>Visual:</span> Screenshot sequence: user types → avatar responds with expressions → audio plays with lip-sync.</div>
+</section>
+
+<!-- ════════════════════════════════ SLIDE 04 ════════════════════════════════ -->
+<section class="slide" id="s4">
+  <div class="slide-number">04 / 13</div>
+  <h2>See It in Action</h2>
+  <div class="divider"></div>
+
+  <ul class="bullets">
+    <li>User asks: <strong>"Tell me about your experience in machine learning"</strong></li>
+    <li>Avatar <strong>searches the knowledge base</strong> → generates a context-aware answer</li>
+    <li>Response delivered with matching <strong>body animation</strong> (e.g. confident talking pose)</li>
+    <li><strong>Facial expression adapts</strong> — smile, neutral, surprised — based on content tone</li>
+    <li>End-to-end latency <strong>under 3 seconds</strong> on standard consumer hardware</li>
+  </ul>
+
+  <div class="notes">
+    <span class="notes-label">Speaker Notes</span>
+    Let me walk you through what the user actually experiences. They ask a question — by voice or by typing. Within 3 seconds, the avatar responds with a natural voice, animated lips that match every phoneme, and body language that fits the emotional tone of the answer.
+  </div>
+
+  <div class="visual-hint"><span>Visual:</span> Screenshot or short video of a live demo. Highlight the mouth moving in sync with audio.</div>
+</section>
+
+<!-- ════════════════════════════════ SLIDE 05 ════════════════════════════════ -->
+<section class="slide" id="s5">
+  <div class="slide-number">05 / 13</div>
+  <h2>Architecture: Two Components, One Seamless Experience</h2>
+  <div class="divider"></div>
+
+  <div class="arch">  [Browser UI]  ──── HTTP POST ────►  [FastAPI Backend]
+                                              │
+                                   ┌──────────┴──────────┐
+                              [ChromaDB]             [Ollama LLM]
+                              RAG Retrieval          Response Gen.
+                                   └──────────┬──────────┘
+                                              │
+                                   ┌──────────┴──────────┐
+                              [Edge TTS]           [Rhubarb]
+                              Speech Audio         Lip-Sync Cues
+                                   └──────────┬──────────┘
+                                              │
+                                   JSON { text, expression,
+                                          animation, audio }
+                                              │
+  [3D Avatar Renderer]  ◄──── Three.js ◄──── React Components</div>
+
+  <ul class="bullets">
+    <li><strong>Frontend:</strong> React 18 + Three.js WebGL canvas served via Vite</li>
+    <li><strong>Backend:</strong> Python FastAPI handling AI, audio, and lip-sync in one call</li>
+    <li>Communication: single REST endpoint — text in, structured JSON + audio out</li>
+    <li>All computation is <strong>local</strong> — no external API calls at runtime</li>
+  </ul>
+
+  <div class="notes">
+    <span class="notes-label">Speaker Notes</span>
+    The system has two layers. The browser renders the 3D avatar using WebGL and React Three Fiber. The Python backend handles all the intelligence — retrieving context, generating the response, converting it to speech, and computing lip-sync timings. The two communicate via a single REST endpoint.
+  </div>
+</section>
+
+<!-- ════════════════════════════════ SLIDE 06 ════════════════════════════════ -->
+<section class="slide" id="s6">
+  <div class="slide-number">06 / 13</div>
+  <h2>Under the Hood: RAG + LLM + TTS + Lip-Sync</h2>
+  <div class="divider"></div>
+
+  <div class="pipeline">
+    <div class="pip-step">User Query</div>
+    <div class="pip-arrow">→</div>
+    <div class="pip-step">Embed</div>
+    <div class="pip-arrow">→</div>
+    <div class="pip-step">ChromaDB Search</div>
+    <div class="pip-arrow">→</div>
+    <div class="pip-step">Top-5 Chunks</div>
+    <div class="pip-arrow">→</div>
+    <div class="pip-step">LLM Prompt</div>
+    <div class="pip-arrow">→</div>
+    <div class="pip-step">JSON Response</div>
+    <div class="pip-arrow">→</div>
+    <div class="pip-step">Edge TTS</div>
+    <div class="pip-arrow">→</div>
+    <div class="pip-step">Rhubarb Phonemes</div>
+    <div class="pip-arrow">→</div>
+    <div class="pip-step">Frontend Render</div>
+  </div>
+
+  <ul class="bullets">
+    <li><strong>RAG:</strong> Query embedded and matched against ChromaDB — retrieves the 5 most relevant document chunks</li>
+    <li><strong>LLM:</strong> Local Ollama model generates structured JSON: <code style="color:var(--green)">{ text, facialExpression, animation }</code></li>
+    <li><strong>TTS:</strong> Microsoft Edge TTS converts text to neural speech — no API key required</li>
+    <li><strong>Lip-Sync:</strong> Rhubarb performs phonetic analysis → per-frame mouth cue timings (visemes)</li>
+    <li>Result: perfectly synchronized audio + visuals from a single backend call</li>
+  </ul>
+
+  <div class="notes">
+    <span class="notes-label">Speaker Notes</span>
+    A user's question gets embedded into a vector, matched against your documents in ChromaDB, and the top 5 most relevant passages are injected into the LLM's prompt. The model returns not just the text answer, but which facial expression and animation to use. Then Edge TTS speaks it, and Rhubarb maps every phoneme to a mouth shape.
+  </div>
+</section>
+
+<!-- ════════════════════════════════ SLIDE 07 ════════════════════════════════ -->
+<section class="slide" id="s7">
+  <div class="slide-number">07 / 13</div>
+  <h2>The Avatar: Lifelike Movement and Expression</h2>
+  <div class="divider"></div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-icon">🎭</div>
+      <div class="card-title">9 Animation States</div>
+      <div class="card-body">Idle, Talking (×3 variants), Laughing, Angry, Crying, Rumba, Terrified — with smooth 0.5s cross-fade transitions</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">😊</div>
+      <div class="card-title">7 Facial Expressions</div>
+      <div class="card-body">Default, Smile, FunnyFace, Sad, Surprised, Angry, Crazy — mapped across 27+ morph targets via lerp interpolation</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">👄</div>
+      <div class="card-title">Frame-Accurate Lip-Sync</div>
+      <div class="card-body">Viseme morph targets (viseme_AA, viseme_PP, etc.) timed to audio playback — every syllable has the correct mouth shape</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">👁️</div>
+      <div class="card-title">Natural Eye Animation</div>
+      <div class="card-body">Randomized blinking at 1–5 second intervals plus wink support for personality and realism</div>
+    </div>
+  </div>
+
+  <div class="notes">
+    <span class="notes-label">Speaker Notes</span>
+    The avatar isn't just a talking head. It cycles through three talking animations to avoid looking robotic, smoothly transitions between states, and its face uses 27 blend shapes to form expressions. The lip movements are phoneme-accurate — every syllable maps to the correct mouth shape, synchronized frame by frame with the audio.
+  </div>
+
+  <div class="visual-hint"><span>Visual:</span> Grid of avatar screenshots showing different expressions and animation poses.</div>
+</section>
+
+<!-- ════════════════════════════════ SLIDE 08 ════════════════════════════════ -->
+<section class="slide" id="s8">
+  <div class="slide-number">08 / 13</div>
+  <h2>Key Features at a Glance</h2>
+  <div class="divider"></div>
+
+  <ul class="bullets">
+    <li><strong>Voice input</strong> via Web Speech API — speak directly to the avatar</li>
+    <li><strong>Green-screen mode</strong> for streaming, recording, or virtual backgrounds</li>
+    <li><strong>Customization panel</strong> — upload your own 3D model, adjust position, scale, and background</li>
+    <li><strong>Debug panel</strong> (Leva) for real-time parameter tuning without restarting</li>
+    <li><strong>Response queue</strong> — multiple messages handled sequentially, no dropped replies</li>
+  </ul>
+
+  <div class="notes">
+    <span class="notes-label">Speaker Notes</span>
+    Beyond the core AI, the system includes practical features. You can speak to it, use it on a green screen for broadcast, upload a completely different 3D character, and tune all parameters live. The response queue means even if you send multiple questions quickly, every answer is delivered in order.
+  </div>
+
+  <div class="visual-hint"><span>Visual:</span> Side-by-side UI screenshots: the chat panel, the customization panel, and the green-screen mode.</div>
+</section>
+
+<!-- ════════════════════════════════ SLIDE 09 ════════════════════════════════ -->
+<section class="slide" id="s9">
+  <div class="slide-number">09 / 13</div>
+  <h2>Why Local Matters: Privacy, Cost, Control</h2>
+  <div class="divider"></div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Capability</th>
+        <th>GreenTech Avatar</th>
+        <th>Cloud AI Chatbot</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Data privacy</td>
+        <td><span class="check">✓</span> Local only — data never leaves</td>
+        <td><span class="cross">✗</span> Sent to cloud servers</td>
+      </tr>
+      <tr>
+        <td>Runtime cost</td>
+        <td><span class="check">✓</span> Zero after setup</td>
+        <td><span class="cross">✗</span> Per-query fees</td>
+      </tr>
+      <tr>
+        <td>Customization</td>
+        <td><span class="check">✓</span> Full — model, voice, knowledge</td>
+        <td><span class="cross">✗</span> Limited by provider</td>
+      </tr>
+      <tr>
+        <td>Internet required</td>
+        <td><span class="check">✓</span> No (air-gap capable)</td>
+        <td><span class="cross">✗</span> Always</td>
+      </tr>
+      <tr>
+        <td>GDPR compliant</td>
+        <td><span class="check">✓</span> By design</td>
+        <td>Depends on vendor</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="notes">
+    <span class="notes-label">Speaker Notes</span>
+    Every alternative either sends your data to a cloud provider or costs money per interaction. GreenTech Avatar runs entirely on your hardware. Once deployed, it costs nothing to operate — and sensitive documents like client data or internal manuals stay on-premise.
+  </div>
+</section>
+
+<!-- ════════════════════════════════ SLIDE 10 ════════════════════════════════ -->
+<section class="slide" id="s10">
+  <div class="slide-number">10 / 13</div>
+  <h2>Who Is This For?</h2>
+  <div class="divider"></div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-icon">👤</div>
+      <div class="card-title">Personal Branding</div>
+      <div class="card-body">An interactive digital resume that answers recruiter questions about your skills and experience — 24/7</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🛒</div>
+      <div class="card-title">Customer Service</div>
+      <div class="card-body">A product assistant trained on manuals and FAQs — handles common questions without human intervention</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🏥</div>
+      <div class="card-title">Healthcare / Legal</div>
+      <div class="card-body">A compliant information kiosk using private, sensitive documents — no cloud exposure</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🎓</div>
+      <div class="card-title">Education</div>
+      <div class="card-body">An AI tutor avatar trained on course materials — students ask questions, the avatar explains</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🎪</div>
+      <div class="card-title">Events &amp; Exhibitions</div>
+      <div class="card-body">A compelling interactive booth representative that never tires and never misquotes</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🏭</div>
+      <div class="card-title">Enterprise Internal</div>
+      <div class="card-body">HR onboarding assistant, IT helpdesk, or internal knowledge portal — all on-premise</div>
+    </div>
+  </div>
+
+  <div class="notes">
+    <span class="notes-label">Speaker Notes</span>
+    The versatility comes from the RAG system — you swap out the knowledge base documents and the avatar becomes a different expert. A job seeker loads their CV. A hospital loads clinical guidelines. A retailer loads product specs. Same system, infinite personas.
+  </div>
+</section>
+
+<!-- ════════════════════════════════ SLIDE 11 ════════════════════════════════ -->
+<section class="slide" id="s11">
+  <div class="slide-number">11 / 13</div>
+  <h2>Tech Stack: Modern, Open-Source, No Lock-In</h2>
+  <div class="divider"></div>
+
+  <div class="stack-group">
+    <div class="stack-label">Frontend</div>
+    <span class="tag">React 18</span>
+    <span class="tag">TypeScript 5</span>
+    <span class="tag">Three.js</span>
+    <span class="tag">React Three Fiber</span>
+    <span class="tag">React Three Drei</span>
+    <span class="tag">Tailwind CSS</span>
+    <span class="tag">Vite</span>
+  </div>
+
+  <div class="stack-group">
+    <div class="stack-label">3D / XR</div>
+    <span class="tag">WebGL</span>
+    <span class="tag">glTF / GLTF Models</span>
+    <span class="tag">Morph Targets</span>
+    <span class="tag">Skeletal Animation</span>
+    <span class="tag">React Three XR</span>
+  </div>
+
+  <div class="stack-group">
+    <div class="stack-label">Backend &amp; AI</div>
+    <span class="tag">Python FastAPI</span>
+    <span class="tag">LangChain</span>
+    <span class="tag">ChromaDB</span>
+    <span class="tag">Ollama</span>
+    <span class="tag">phi3:3.8b / llama3.2:3b</span>
+    <span class="tag">nomic-embed-text</span>
+  </div>
+
+  <div class="stack-group">
+    <div class="stack-label">Audio &amp; Lip-Sync</div>
+    <span class="tag">Microsoft Edge TTS</span>
+    <span class="tag">FFmpeg</span>
+    <span class="tag">Rhubarb Lip Sync</span>
+    <span class="tag">Web Speech API</span>
+  </div>
+
+  <div class="notes">
+    <span class="notes-label">Speaker Notes</span>
+    Every tool here is open-source or freely available. We deliberately chose a stack with no vendor lock-in — you can swap Ollama for any compatible LLM, replace Edge-TTS with another voice engine, or update the 3D model independently. The architecture is modular by design.
+  </div>
+</section>
+
+<!-- ════════════════════════════════ SLIDE 12 ════════════════════════════════ -->
+<section class="slide" id="s12">
+  <div class="slide-number">12 / 13</div>
+  <h2>Results &amp; Roadmap</h2>
+  <div class="divider"></div>
+
+  <div class="roadmap">
+    <div class="roadmap-col done">
+      <div class="roadmap-col-title">Completed</div>
+      <ul>
+        <li>End-to-end working demo</li>
+        <li>RAG + local LLM pipeline</li>
+        <li>Frame-accurate lip-sync</li>
+        <li>9 animations, 7 expressions</li>
+        <li>Voice input (Web Speech API)</li>
+        <li>Green-screen mode</li>
+        <li>Avatar customization panel</li>
+        <li>Response queue</li>
+        <li>Under 3s latency on standard hardware</li>
+      </ul>
+    </div>
+    <div class="roadmap-col next">
+      <div class="roadmap-col-title">Next Steps</div>
+      <ul>
+        <li>Streaming responses (reduce perceived latency)</li>
+        <li>Multi-language TTS voices</li>
+        <li>Mobile-optimized UI</li>
+        <li>WebXR / VR headset deployment</li>
+        <li>Multi-document knowledge management UI</li>
+        <li>Analytics dashboard (query logs)</li>
+        <li>Docker container for 1-click deploy</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="notes">
+    <span class="notes-label">Speaker Notes</span>
+    We have a working, production-deployable system today. The next phase focuses on streaming responses to cut perceived latency further, adding multilingual TTS voices, and leveraging the WebXR foundation already in the code to deploy the avatar in VR headsets.
+  </div>
+</section>
+
+<!-- ════════════════════════════════ SLIDE 13 ════════════════════════════════ -->
+<section class="slide slide-title" id="s13">
+  <div class="slide-number">13 / 13</div>
+  <div class="qa-big">Q&amp;A</div>
+  <h2 style="margin-bottom:1rem;">Try It. Customize It. Deploy It.</h2>
+
+  <ul class="bullets" style="text-align:left; max-width:520px;">
+    <li>Self-contained setup — runs on any machine with Python and Node.js</li>
+    <li>Open for collaboration, integration, and enterprise deployment</li>
+    <li>Demo available live — ask the avatar anything, right now</li>
+  </ul>
+
+  <div style="margin-top:1.5rem; display:flex; flex-direction:column; gap:0.35rem; align-items:center;">
+    <span style="color:var(--muted); font-size:0.85rem;">Contact</span>
+    <span style="color:var(--green); font-weight:600; font-size:1rem;">omidfreelance100@gmail.com</span>
+    <span style="color:var(--muted); font-size:0.85rem;">GreenTech — Omid Shojaeian Zanjani</span>
+  </div>
+
+  <div class="notes">
+    <span class="notes-label">Speaker Notes</span>
+    That's GreenTech Avatar — a complete, privacy-first, AI-powered 3D assistant you can run right now on your own hardware. I'd love to show you the live demo or answer any questions about the architecture, the AI pipeline, or the customization possibilities. Thank you.
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  GreenTech Avatar &nbsp;·&nbsp; Omid Shojaeian Zanjani &nbsp;·&nbsp; 2025
+</footer>
+
+</body>
+</html>
