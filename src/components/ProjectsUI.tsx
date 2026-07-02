@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 interface ProjectProfile {
   id: number;
@@ -25,7 +25,7 @@ export function ProjectsUI() {
     try {
       const res = await fetch(`${backendUrl}/api/admin/projects`);
       const data = await res.json();
-      setProjects(data);
+      setProjects(Array.isArray(data) ? data : []);
     } catch (e) { console.error(e); }
   };
 

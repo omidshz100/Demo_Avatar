@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 interface SystemPrompt {
   id: number;
@@ -23,7 +23,7 @@ export function PromptsUI() {
     try {
       const res = await fetch(`${backendUrl}/api/admin/prompts`);
       const data = await res.json();
-      setPrompts(data);
+      setPrompts(Array.isArray(data) ? data : []);
     } catch (e) { console.error(e); }
   };
 

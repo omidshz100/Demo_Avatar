@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 interface PlatformSettings {
   company_name: string;
