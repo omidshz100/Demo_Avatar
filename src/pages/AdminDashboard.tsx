@@ -9,7 +9,7 @@ export function AdminDashboard() {
   return (
     <div className="min-h-screen bg-[#0B1120] text-white p-8">
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8">GreenTech Knowledge Management</h1>
+        <h1 className="text-3xl font-bold mb-8">Otofarma Knowledge Management</h1>
         
         <div className="flex border-b border-white/10 mb-8">
           <button 

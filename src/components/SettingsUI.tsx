@@ -19,7 +19,7 @@ import { useAvatarConfig } from "../hooks/useAvatarConfig";
 
 export function SettingsUI() {
   const [settings, setSettings] = useState<PlatformSettings>({ 
-    company_name: "GreenTech", 
+    company_name: "Otofarma", 
     company_subtitle: "AI Avatar 🤖 V 1.0.1", 
     background_css: "linear-gradient(19deg, #faaca8 0%, #ddd6f3 100%)",
     active_llm_model: "", 
@@ -40,7 +40,7 @@ export function SettingsUI() {
       const data = await res.json();
       setSettings({
         ...data,
-        company_name: data.company_name || "GreenTech",
+        company_name: data.company_name || "Otofarma",
         company_subtitle: data.company_subtitle || "AI Avatar 🤖 V 1.0.1",
         background_css: data.background_css || "linear-gradient(19deg, #faaca8 0%, #ddd6f3 100%)",
       });

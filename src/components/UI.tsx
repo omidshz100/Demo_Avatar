@@ -20,7 +20,7 @@ export const UI = ({ hidden }: UIProps) => {
   const voiceModeRef = useRef(false); // track voiceMode inside callbacks
 
   // Fetch dynamic company info
-  const [companyName, setCompanyName] = useState("GreenTech");
+  const [companyName, setCompanyName] = useState("Otofarma");
   const [companySubtitle, setCompanySubtitle] = useState("AI Avatar 🤖 V 1.0.1");
   const [headerBackground, setHeaderBackground] = useState("rgba(255, 255, 255, 0.5)");
   const [captionsEnabled, setCaptionsEnabled] = useState(true);
