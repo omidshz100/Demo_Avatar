@@ -117,3 +117,5 @@ npm run dev
 
 **Omid Shojaeian Zanjani**
 *T-Shaped Engineer | Data Scientist | Full-Stack Architect*
+
+&copy; 2026 OMID Shojaeian Zanjani. All Rights Reserved.
